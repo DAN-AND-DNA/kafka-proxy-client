@@ -15,7 +15,6 @@ var (
 type KafkaProxyClient struct {
 	conn  *client.Client
 	ready bool
-	app   string
 	sync.RWMutex
 }
 
@@ -29,11 +28,11 @@ func GetSingleInst() *KafkaProxyClient {
 	return proxyClient
 }
 
-func (c *KafkaProxyClient) Init(app, address string) error {
-	return c.Recreate(app, address)
+func (c *KafkaProxyClient) Init(address string) error {
+	return c.Recreate(address)
 }
 
-func (c *KafkaProxyClient) Recreate(app, address string) error {
+func (c *KafkaProxyClient) Recreate(address string) error {
 	if c == nil {
 		return nil
 	}
@@ -54,7 +53,6 @@ func (c *KafkaProxyClient) Recreate(app, address string) error {
 
 	c.conn = conn
 	c.ready = true
-	c.app = app
 
 	return nil
 }
@@ -74,7 +72,14 @@ func (c *KafkaProxyClient) Stop() {
 	c.conn.Close()
 }
 
-func (c *KafkaProxyClient) Publish(topic string, msg interface{}) error {
+/*
+Publish 发布消息给指定平台
+
+app: 平台名
+
+topic: kafka topic
+*/
+func (c *KafkaProxyClient) Publish(app, topic string, msg interface{}) error {
 	if c == nil {
 		return nil
 	}
@@ -90,10 +95,23 @@ func (c *KafkaProxyClient) Publish(topic string, msg interface{}) error {
 		return err
 	}
 
+	if app != "" {
+		topic = fmt.Sprintf("%s_%s", app, topic)
+	}
+
 	message := client.ProxyMessage{
-		Topic: fmt.Sprintf("%s_%s", c.app, topic),
+		Topic: topic,
 		Msg:   string(buf),
 	}
 
 	return c.conn.Publish(message)
+}
+
+/*
+PublishCross 发布（无平台）
+
+topic: kafka topic
+*/
+func (c *KafkaProxyClient) PublishCross(topic string, msg interface{}) error {
+	return c.Publish("", topic, msg)
 }

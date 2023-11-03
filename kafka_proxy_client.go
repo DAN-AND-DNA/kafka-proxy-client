@@ -9,8 +9,8 @@ app 平台名
 
 address 地址
 */
-func Init(app, address string) error {
-	return internal.GetSingleInst().Init(app, address)
+func Init(address string) error {
+	return internal.GetSingleInst().Init(address)
 }
 
 /*
@@ -20,8 +20,8 @@ app 平台名
 
 address 地址
 */
-func Recreate(app, address string) error {
-	return internal.GetSingleInst().Recreate(app, address)
+func Recreate(address string) error {
+	return internal.GetSingleInst().Recreate(address)
 }
 
 func Stop() {
@@ -29,7 +29,11 @@ func Stop() {
 }
 
 /*
-Publish 发布一个消息
+Publish 发布消息给指定平台
+
+app: 平台名
+
+topic: kafka topic
 
 msg 消息结构体
 
@@ -37,6 +41,21 @@ msg 消息结构体
 		Name string `json:"name"`
 	}
 */
-func Publish(topic string, msg interface{}) error {
-	return internal.GetSingleInst().Publish(topic, msg)
+func Publish(app, topic string, msg interface{}) error {
+	return internal.GetSingleInst().Publish(app, topic, msg)
+}
+
+/*
+PublishCross 发布（无平台）
+
+topic: kafka topic
+
+msg 消息结构体
+
+	type A struct {
+		Name string `json:"name"`
+	}
+*/
+func PublishCross(topic string, msg interface{}) error {
+	return internal.GetSingleInst().PublishCross(topic, msg)
 }
