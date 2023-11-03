@@ -46,7 +46,7 @@ func Publish(app, topic string, msg interface{}) error {
 }
 
 /*
-PublishCross 发布（无平台）
+PublishCross 发布消息（无平台）
 
 topic: kafka topic
 

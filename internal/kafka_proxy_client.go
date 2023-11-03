@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dan-and-dna/kafka-proxy-client/client"
+	"log"
 	"sync"
 )
 
@@ -33,6 +34,8 @@ func (c *KafkaProxyClient) Init(address string) error {
 }
 
 func (c *KafkaProxyClient) Recreate(address string) error {
+	defer noPanic()
+
 	if c == nil {
 		return nil
 	}
@@ -58,6 +61,8 @@ func (c *KafkaProxyClient) Recreate(address string) error {
 }
 
 func (c *KafkaProxyClient) Stop() {
+	defer noPanic()
+
 	if c == nil {
 		return
 	}
@@ -80,6 +85,8 @@ app: 平台名
 topic: kafka topic
 */
 func (c *KafkaProxyClient) Publish(app, topic string, msg interface{}) error {
+	defer noPanic()
+
 	if c == nil {
 		return nil
 	}
@@ -114,4 +121,11 @@ topic: kafka topic
 */
 func (c *KafkaProxyClient) PublishCross(topic string, msg interface{}) error {
 	return c.Publish("", topic, msg)
+}
+
+func noPanic() {
+	r := recover()
+	if r != nil {
+		log.Println(r)
+	}
 }
